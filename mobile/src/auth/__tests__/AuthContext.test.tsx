@@ -1,4 +1,4 @@
-import { Button, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { loginRequest, logoutRequest, meRequest } from '../../api/auth';
@@ -12,8 +12,12 @@ function Probe() {
   return (
     <>
       <Text testID="user">{auth.user?.name ?? 'none'}</Text>
-      <Button title="login" onPress={() => auth.login('lucas@example.com', 'password123')} />
-      <Button title="logout" onPress={() => auth.logout()} />
+      <Pressable onPress={() => auth.login('lucas@example.com', 'password123')}>
+        <Text>login</Text>
+      </Pressable>
+      <Pressable onPress={() => auth.logout()}>
+        <Text>logout</Text>
+      </Pressable>
     </>
   );
 }
@@ -23,7 +27,7 @@ function Probe() {
 // prompt React to flush work scheduled outside an act() boundary), so a short real
 // delay stands in for it here. The mount-effect test below is unaffected and uses
 // `waitFor` normally.
-const flushUpdates = () => new Promise((resolve) => setTimeout(resolve, 1000));
+const flushUpdates = () => new Promise((resolve) => setTimeout(resolve, 1500));
 
 test('login stores the token and exposes the user; logout clears both', async () => {
   (loginRequest as jest.Mock).mockResolvedValue({ user: { id: 1, name: 'Lucas', email: 'l@e.com' }, token: 'abc' });
