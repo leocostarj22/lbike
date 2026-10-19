@@ -422,6 +422,7 @@ git commit -m "feat(mobile): add navigation shell and login screen"
 **Files:**
 - Create: `mobile/app/(auth)/register.tsx`
 - Create: `mobile/app/(tabs)/profile.tsx`
+- Modify: `mobile/app/(tabs)/_layout.tsx` (add the "Perfil" tab, from Task 5)
 - Test: `mobile/app/(auth)/__tests__/register.test.tsx`
 - Test: `mobile/app/(tabs)/__tests__/profile.test.tsx`
 
