@@ -308,7 +308,7 @@ test('login stores the token and exposes the user; logout clears both', async ()
   (loginRequest as jest.Mock).mockResolvedValue({ user: { id: 1, name: 'Lucas', email: 'l@e.com' }, token: 'abc' });
   (logoutRequest as jest.Mock).mockResolvedValue(undefined);
 
-  const { getByText, getByTestId } = render(<AuthProvider><Probe /></AuthProvider>);
+  const { getByText, getByTestId } = await render(<AuthProvider><Probe /></AuthProvider>);
   fireEvent.press(getByText('login'));
   await waitFor(() => expect(getByTestId('user').props.children).toBe('Lucas'));
   expect(SecureStore.setItemAsync).toHaveBeenCalledWith('lbike_token', 'abc');
@@ -322,7 +322,7 @@ test('on mount, a stored token restores the session via meRequest', async () => 
   (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('stored-token');
   (meRequest as jest.Mock).mockResolvedValue({ user: { id: 2, name: 'Ana', email: 'a@e.com' } });
 
-  const { getByTestId } = render(<AuthProvider><Probe /></AuthProvider>);
+  const { getByTestId } = await render(<AuthProvider><Probe /></AuthProvider>);
   await waitFor(() => expect(getByTestId('user').props.children).toBe('Ana'));
 });
 ```
@@ -373,7 +373,7 @@ test('submitting the form calls login with the entered credentials', async () =>
   const login = jest.fn().mockResolvedValue(undefined);
   (useAuth as jest.Mock).mockReturnValue({ login, isLoading: false, user: null });
 
-  const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+  const { getByPlaceholderText, getByText } = await render(<LoginScreen />);
   fireEvent.changeText(getByPlaceholderText('Email'), 'lucas@example.com');
   fireEvent.changeText(getByPlaceholderText('Palavra-passe'), 'password123');
   fireEvent.press(getByText('Entrar'));
@@ -385,7 +385,7 @@ test('a failed login shows an error message instead of crashing', async () => {
   const login = jest.fn().mockRejectedValue(new ApiError('Invalid credentials.', 401));
   (useAuth as jest.Mock).mockReturnValue({ login, isLoading: false, user: null });
 
-  const { getByPlaceholderText, getByText, findByText } = render(<LoginScreen />);
+  const { getByPlaceholderText, getByText, findByText } = await render(<LoginScreen />);
   fireEvent.changeText(getByPlaceholderText('Email'), 'lucas@example.com');
   fireEvent.changeText(getByPlaceholderText('Palavra-passe'), 'wrong');
   fireEvent.press(getByText('Entrar'));
@@ -438,7 +438,7 @@ test('submitting the form calls register with the entered fields', async () => {
   const register = jest.fn().mockResolvedValue(undefined);
   (useAuth as jest.Mock).mockReturnValue({ register, isLoading: false, user: null });
 
-  const { getByPlaceholderText, getByText } = render(<RegisterScreen />);
+  const { getByPlaceholderText, getByText } = await render(<RegisterScreen />);
   fireEvent.changeText(getByPlaceholderText('Nome'), 'Lucas');
   fireEvent.changeText(getByPlaceholderText('Email'), 'lucas@example.com');
   fireEvent.changeText(getByPlaceholderText('Palavra-passe'), 'password123');
@@ -448,13 +448,13 @@ test('submitting the form calls register with the entered fields', async () => {
 });
 
 // profile.test.tsx
-test('shows the authenticated user and logs out on press', () => {
+test('shows the authenticated user and logs out on press', async () => {
   const logout = jest.fn();
   (useAuth as jest.Mock).mockReturnValue({
     user: { id: 1, name: 'Lucas', email: 'lucas@example.com' }, logout, isLoading: false,
   });
 
-  const { getByText } = render(<ProfileScreen />);
+  const { getByText } = await render(<ProfileScreen />);
   expect(getByText('Lucas')).toBeTruthy();
   fireEvent.press(getByText('Sair'));
   expect(logout).toHaveBeenCalled();
