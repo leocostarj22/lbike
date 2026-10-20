@@ -1,5 +1,15 @@
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthContext';
+import { AppRoutes } from './routes/AppRoutes';
+
 function App() {
-  return <h1>LBike</h1>
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
