@@ -21,6 +21,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './vitest.setup.ts',
     globals: true,
+    // 'forks'/'threads' spawn OS-level child processes, which have shown
+    // ~50% flaky startup timeouts under WSL2 on this machine. 'vmThreads'
+    // isolates test files with VM contexts inside a single process
+    // instead, avoiding that spawn entirely.
+    pool: 'vmThreads',
     deps: {
       optimizer: {
         client: { enabled: false },
