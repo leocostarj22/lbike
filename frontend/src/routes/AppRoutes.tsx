@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
 import { BottomNav } from '../components/BottomNav';
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,8 +16,8 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<div>Login</div>} />
-      <Route path="/register" element={<div>Registo</div>} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route
         path="/"
         element={<AuthenticatedLayout><div>Início</div></AuthenticatedLayout>}
