@@ -13,6 +13,7 @@ const TOKEN_KEY = 'lbike_token';
 export interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
+  token: string | null;
   register(
     name: string,
     email: string,
@@ -27,15 +28,16 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    if (!storedToken) {
       return;
     }
 
-    meRequest(token)
+    meRequest(storedToken)
       .then(({ user }) => {
         setUser(user);
       })
@@ -46,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // without forcing the user to log in again.
         if (err instanceof ApiError && err.status === 401) {
           localStorage.removeItem(TOKEN_KEY);
+          setToken(null);
         }
         setUser(null);
       })
@@ -56,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function storeSession(user: User, token: string) {
     localStorage.setItem(TOKEN_KEY, token);
+    setToken(token);
     setUser(user);
   }
 
@@ -84,11 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, token, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

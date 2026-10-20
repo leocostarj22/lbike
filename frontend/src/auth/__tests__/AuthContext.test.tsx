@@ -12,11 +12,12 @@ vi.mock('../../api/auth', () => ({
 }));
 
 function Probe() {
-  const { user, isLoading, login, logout } = useAuth();
+  const { user, isLoading, login, logout, token } = useAuth();
   if (isLoading) return <div>A carregar...</div>;
   return (
     <div>
       <div>{user ? `Ola, ${user.name}` : 'Sem sessao'}</div>
+      <div>{token ?? 'sem token'}</div>
       <button onClick={() => login('l@e.com', 'secret')}>Entrar</button>
       <button onClick={() => logout()}>Sair</button>
     </div>
@@ -66,9 +67,11 @@ describe('AuthProvider', () => {
     await user.click(screen.getByText('Entrar'));
     await waitFor(() => expect(screen.getByText('Ola, Lucas')).toBeInTheDocument());
     expect(localStorage.getItem('lbike_token')).toBe('abc');
+    expect(screen.getByText('abc')).toBeInTheDocument();
 
     await user.click(screen.getByText('Sair'));
     await waitFor(() => expect(screen.getByText('Sem sessao')).toBeInTheDocument());
     expect(localStorage.getItem('lbike_token')).toBeNull();
+    expect(screen.getByText('sem token')).toBeInTheDocument();
   });
 });
