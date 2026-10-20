@@ -20,25 +20,31 @@ export default function ActivitiesPage() {
   }, [token]);
 
   if (error) {
-    return <p role="alert">{error}</p>;
+    return (
+      <p role="alert" className="p-6 text-center text-sm text-red-400">
+        {error}
+      </p>
+    );
   }
 
   if (activities === null) {
-    return <p>A carregar...</p>;
+    return <p className="p-6 text-center">A carregar...</p>;
   }
 
   if (activities.length === 0) {
-    return <p>Ainda não tens atividades registadas.</p>;
+    return <p className="p-6 text-center">Ainda não tens atividades registadas.</p>;
   }
 
   return (
-    <ul>
+    <ul className="space-y-3 p-6">
       {activities.map((activity) => (
-        <li key={activity.id}>
-          <p>{ACTIVITY_TYPE_LABELS[activity.type]}</p>
-          <p>{activity.title ?? 'Sem título'}</p>
-          <p>{formatDistanceKm(activity.distance_meters)}</p>
-          <p>{formatDuration(activity.duration_seconds)}</p>
+        <li key={activity.id} className="rounded-lg border border-white/10 p-4">
+          <p className="text-sm text-accent">{ACTIVITY_TYPE_LABELS[activity.type]}</p>
+          <p className="font-semibold">{activity.title ?? 'Sem título'}</p>
+          <div className="mt-1 flex gap-4 text-sm text-white/70">
+            <p>{formatDistanceKm(activity.distance_meters)}</p>
+            <p>{formatDuration(activity.duration_seconds)}</p>
+          </div>
         </li>
       ))}
     </ul>
