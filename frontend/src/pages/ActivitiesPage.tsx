@@ -1,3 +1,38 @@
+import { useEffect, useState } from 'react';
+import { useAuth } from '../auth/AuthContext';
+import { listActivitiesRequest, type Activity } from '../api/activities';
+import { ACTIVITY_TYPE_LABELS } from '../recording/activityTypes';
+import { formatDistanceKm, formatDuration } from '../recording/format';
+
 export default function ActivitiesPage() {
-  return <h1>Actividades — em construção</h1>;
+  const { token } = useAuth();
+  const [activities, setActivities] = useState<Activity[] | null>(null);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    listActivitiesRequest(token).then(({ activities }) => setActivities(activities));
+  }, [token]);
+
+  if (activities === null) {
+    return <p>A carregar...</p>;
+  }
+
+  if (activities.length === 0) {
+    return <p>Ainda não tens atividades registadas.</p>;
+  }
+
+  return (
+    <ul>
+      {activities.map((activity) => (
+        <li key={activity.id}>
+          <p>{ACTIVITY_TYPE_LABELS[activity.type]}</p>
+          <p>{activity.title ?? 'Sem título'}</p>
+          <p>{formatDistanceKm(activity.distance_meters)}</p>
+          <p>{formatDuration(activity.duration_seconds)}</p>
+        </li>
+      ))}
+    </ul>
+  );
 }
