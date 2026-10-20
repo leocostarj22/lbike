@@ -32,7 +32,15 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     return undefined as T;
   }
 
-  const data = await response.json();
+  let data: { message?: string; errors?: Record<string, string[]> } = {};
+  try {
+    data = await response.json();
+  } catch {
+    if (!response.ok) {
+      throw new ApiError('Request failed', response.status);
+    }
+    throw new ApiError('Invalid server response', response.status);
+  }
 
   if (!response.ok) {
     throw new ApiError(data.message ?? 'Request failed', response.status, data.errors);

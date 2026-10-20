@@ -10,7 +10,7 @@ const links = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 flex justify-around bg-[#1A1A1A] py-2">
+    <nav className="fixed bottom-0 left-0 right-0 flex justify-around bg-background py-2">
       {links.map(({ to, label }) => (
         <NavLink
           key={to}
@@ -18,8 +18,8 @@ export function BottomNav() {
           end={to === '/'}
           className={({ isActive }) =>
             label === 'Registar'
-              ? 'rounded-full bg-[#A3E635] px-4 py-2 font-semibold text-[#1A1A1A]'
-              : `px-3 py-2 text-sm ${isActive ? 'text-[#A3E635]' : 'text-white'}`
+              ? 'rounded-full bg-accent px-4 py-2 font-semibold text-background'
+              : `px-3 py-2 text-sm ${isActive ? 'text-accent' : 'text-white'}`
           }
         >
           {label}

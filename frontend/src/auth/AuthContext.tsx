@@ -6,6 +6,7 @@ import {
   logoutRequest,
   type User,
 } from '../api/auth';
+import { ApiError } from '../api/client';
 
 const TOKEN_KEY = 'lbike_token';
 
@@ -26,12 +27,11 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
 
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
-      setIsLoading(false);
       return;
     }
 
@@ -39,8 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ user }) => {
         setUser(user);
       })
-      .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
+      .catch((err) => {
+        // Only a confirmed-invalid token is cleared. A network failure or
+        // server error leaves the token in place so a later retry (e.g.
+        // reopening the app once back online) can restore the session
+        // without forcing the user to log in again.
+        if (err instanceof ApiError && err.status === 401) {
+          localStorage.removeItem(TOKEN_KEY);
+        }
         setUser(null);
       })
       .finally(() => {

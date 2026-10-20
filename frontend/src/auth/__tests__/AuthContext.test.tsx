@@ -47,6 +47,15 @@ describe('AuthProvider', () => {
     expect(localStorage.getItem('lbike_token')).toBeNull();
   });
 
+  test('keeps the stored token on a network failure at mount (no user, but token survives for a later retry)', async () => {
+    localStorage.setItem('lbike_token', 'abc');
+    const { ApiError } = await import('../../api/client');
+    vi.mocked(authApi.meRequest).mockRejectedValue(new ApiError('Network error', 0));
+    render(<AuthProvider><Probe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByText('Sem sessao')).toBeInTheDocument());
+    expect(localStorage.getItem('lbike_token')).toBe('abc');
+  });
+
   test('login stores the token and user; logout clears both', async () => {
     vi.mocked(authApi.loginRequest).mockResolvedValue({ user: { id: 1, name: 'Lucas', email: 'l@e.com' }, token: 'abc' });
     vi.mocked(authApi.logoutRequest).mockResolvedValue(undefined);

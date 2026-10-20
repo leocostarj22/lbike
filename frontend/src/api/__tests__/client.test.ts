@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { request, ApiError } from '../client';
+import { request } from '../client';
 
 beforeEach(() => { vi.stubGlobal('fetch', vi.fn()); });
 
@@ -22,5 +22,15 @@ describe('request', () => {
   test('throws a network ApiError when fetch itself rejects', async () => {
     (fetch as any).mockRejectedValue(new TypeError('Failed to fetch'));
     await expect(request('/ping')).rejects.toMatchObject({ status: 0 });
+  });
+
+  test('throws a clean ApiError when an error response has a non-JSON body (e.g. a tunnel outage HTML page)', async () => {
+    (fetch as any).mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => { throw new SyntaxError('Unexpected token <'); },
+    });
+    await expect(request('/ping')).rejects.toMatchObject({ status: 502 });
+    await expect(request('/ping')).rejects.toBeInstanceOf((await import('../client')).ApiError);
   });
 });
