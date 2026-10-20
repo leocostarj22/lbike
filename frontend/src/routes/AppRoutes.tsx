@@ -3,6 +3,11 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { BottomNav } from '../components/BottomNav';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
+import HomePage from '../pages/HomePage';
+import MapPage from '../pages/MapPage';
+import RecordPage from '../pages/RecordPage';
+import ActivitiesPage from '../pages/ActivitiesPage';
+import ProfilePage from '../pages/ProfilePage';
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,26 +23,14 @@ export function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route
-        path="/"
-        element={<AuthenticatedLayout><div>Início</div></AuthenticatedLayout>}
-      />
-      <Route
-        path="/map"
-        element={<AuthenticatedLayout><div>Mapa</div></AuthenticatedLayout>}
-      />
-      <Route
-        path="/record"
-        element={<AuthenticatedLayout><div>Registar</div></AuthenticatedLayout>}
-      />
+      <Route path="/" element={<AuthenticatedLayout><HomePage /></AuthenticatedLayout>} />
+      <Route path="/map" element={<AuthenticatedLayout><MapPage /></AuthenticatedLayout>} />
+      <Route path="/record" element={<AuthenticatedLayout><RecordPage /></AuthenticatedLayout>} />
       <Route
         path="/activities"
-        element={<AuthenticatedLayout><div>Actividades</div></AuthenticatedLayout>}
+        element={<AuthenticatedLayout><ActivitiesPage /></AuthenticatedLayout>}
       />
-      <Route
-        path="/profile"
-        element={<AuthenticatedLayout><div>Perfil</div></AuthenticatedLayout>}
-      />
+      <Route path="/profile" element={<AuthenticatedLayout><ProfilePage /></AuthenticatedLayout>} />
     </Routes>
   );
 }
