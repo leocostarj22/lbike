@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import ActivitiesPage from '../ActivitiesPage';
 import * as useAuthModule from '../../auth/AuthContext';
 import * as activitiesApi from '../../api/activities';
+import { ApiError } from '../../api/client';
 
 vi.mock('../../auth/AuthContext');
 vi.mock('../../api/activities');
@@ -35,5 +36,12 @@ describe('ActivitiesPage', () => {
     render(<MemoryRouter><ActivitiesPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByText('Ainda não tens atividades registadas.')).toBeInTheDocument());
+  });
+
+  test('shows an error instead of loading forever when the request fails', async () => {
+    vi.mocked(activitiesApi.listActivitiesRequest).mockRejectedValue(new ApiError('Network error', 0));
+    render(<MemoryRouter><ActivitiesPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByText('Sem ligação à internet. Tenta novamente.')).toBeInTheDocument());
   });
 });

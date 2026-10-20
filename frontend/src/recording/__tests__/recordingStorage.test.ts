@@ -9,13 +9,13 @@ describe('recordingStorage', () => {
   });
 
   test('round-trips a saved recording', () => {
-    const data = { activityType: 'cycling' as const, startedAtMs: 1000, points: [{ lat: 1, lng: 2, timestampMs: 1000 }], elapsedSeconds: 30 };
+    const data = { activityType: 'cycling' as const, startedAtMs: 1000, points: [{ lat: 1, lng: 2, timestampMs: 1000 }], elapsedSeconds: 30, distanceMeters: 42 };
     saveRecording(data);
     expect(loadRecording()).toEqual(data);
   });
 
   test('clear removes the stored recording', () => {
-    saveRecording({ activityType: 'cycling', startedAtMs: 1000, points: [], elapsedSeconds: 0 });
+    saveRecording({ activityType: 'cycling', startedAtMs: 1000, points: [], elapsedSeconds: 0, distanceMeters: 0 });
     clearRecording();
     expect(loadRecording()).toBeNull();
   });

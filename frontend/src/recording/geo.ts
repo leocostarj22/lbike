@@ -23,6 +23,12 @@ export function haversineDistanceMeters(a: GeoPoint, b: GeoPoint): number {
 
 export const MAX_PLAUSIBLE_SPEED_MPS = 42;
 
+// GPS fixes less accurate than this (metres, per the browser's reported
+// accuracy radius) are discarded before filtering — a single bad fix with
+// a huge accuracy radius can otherwise read as a plausible-speed jump and
+// silently inflate the recorded distance.
+export const MAX_ACCURACY_METERS = 50;
+
 export function shouldAcceptPoint(previous: GeoPoint | null, next: GeoPoint): boolean {
   if (previous === null) {
     return true;

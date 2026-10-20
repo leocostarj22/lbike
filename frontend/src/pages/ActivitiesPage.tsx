@@ -3,17 +3,25 @@ import { useAuth } from '../auth/AuthContext';
 import { listActivitiesRequest, type Activity } from '../api/activities';
 import { ACTIVITY_TYPE_LABELS } from '../recording/activityTypes';
 import { formatDistanceKm, formatDuration } from '../recording/format';
+import { friendlyErrorMessage } from '../api/errorMessages';
 
 export default function ActivitiesPage() {
   const { token } = useAuth();
   const [activities, setActivities] = useState<Activity[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
       return;
     }
-    listActivitiesRequest(token).then(({ activities }) => setActivities(activities));
+    listActivitiesRequest(token)
+      .then(({ activities }) => setActivities(activities))
+      .catch((err) => setError(friendlyErrorMessage(err)));
   }, [token]);
+
+  if (error) {
+    return <p role="alert">{error}</p>;
+  }
 
   if (activities === null) {
     return <p>A carregar...</p>;

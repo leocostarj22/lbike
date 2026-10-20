@@ -6,6 +6,8 @@ import { useWakeLock } from '../recording/useWakeLock';
 import { ACTIVITY_TYPE_LABELS, type ActivityType } from '../recording/activityTypes';
 import { formatDistanceKm, formatDuration } from '../recording/format';
 import { createActivityRequest } from '../api/activities';
+import { clearRecording } from '../recording/recordingStorage';
+import { friendlyErrorMessage } from '../api/errorMessages';
 
 export default function RecordPage() {
   const { token } = useAuth();
@@ -18,6 +20,7 @@ export default function RecordPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function handleFinish() {
     setSummary(recorder.finish());
@@ -34,6 +37,7 @@ export default function RecordPage() {
     }
 
     setIsSaving(true);
+    setSaveError(null);
     try {
       await createActivityRequest(token, {
         type: summary.activityType,
@@ -50,7 +54,10 @@ export default function RecordPage() {
           recorded_at: new Date(point.timestampMs).toISOString(),
         })),
       });
+      clearRecording();
       navigate('/activities');
+    } catch (err) {
+      setSaveError(friendlyErrorMessage(err));
     } finally {
       setIsSaving(false);
     }
@@ -70,6 +77,7 @@ export default function RecordPage() {
       <div>
         <p>{formatDistanceKm(summary.distanceMeters)}</p>
         <p>{formatDuration(summary.durationSeconds)}</p>
+        {saveError && <p role="alert">{saveError}</p>}
         <label htmlFor="title">Título (opcional)</label>
         <input id="title" value={title} onChange={(event) => setTitle(event.target.value)} />
         <label htmlFor="description">Descrição (opcional)</label>

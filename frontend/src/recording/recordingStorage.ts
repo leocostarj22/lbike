@@ -8,6 +8,7 @@ export interface StoredRecording {
   startedAtMs: number;
   points: GeoPoint[];
   elapsedSeconds: number;
+  distanceMeters: number;
 }
 
 export function saveRecording(data: StoredRecording): void {

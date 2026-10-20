@@ -54,6 +54,86 @@ class ActivityTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_store_rejects_an_out_of_range_latitude(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeaders($this->authHeader($user))->postJson('/api/v1/activities', [
+            'type' => 'cycling',
+            'started_at' => now()->toIso8601String(),
+            'distance_meters' => 100,
+            'duration_seconds' => 5,
+            'moving_seconds' => 5,
+            'points' => [
+                ['lat' => 999, 'lng' => -9.13, 'recorded_at' => now()->toIso8601String()],
+                ['lat' => 38.72, 'lng' => -9.14, 'recorded_at' => now()->toIso8601String()],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseCount('activities', 0);
+    }
+
+    public function test_store_rejects_a_title_over_255_characters(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeaders($this->authHeader($user))->postJson('/api/v1/activities', [
+            'type' => 'cycling',
+            'title' => str_repeat('a', 256),
+            'started_at' => now()->toIso8601String(),
+            'distance_meters' => 100,
+            'duration_seconds' => 5,
+            'moving_seconds' => 5,
+            'points' => [
+                ['lat' => 38.71, 'lng' => -9.13, 'recorded_at' => now()->toIso8601String()],
+                ['lat' => 38.72, 'lng' => -9.14, 'recorded_at' => now()->toIso8601String()],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_store_rejects_negative_distance_or_duration(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeaders($this->authHeader($user))->postJson('/api/v1/activities', [
+            'type' => 'cycling',
+            'started_at' => now()->toIso8601String(),
+            'distance_meters' => -5,
+            'duration_seconds' => -1,
+            'moving_seconds' => -1,
+            'points' => [
+                ['lat' => 38.71, 'lng' => -9.13, 'recorded_at' => now()->toIso8601String()],
+                ['lat' => 38.72, 'lng' => -9.14, 'recorded_at' => now()->toIso8601String()],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_store_bulk_inserts_a_large_track_correctly(): void
+    {
+        $user = User::factory()->create();
+        $points = [];
+        for ($i = 0; $i < 50; $i++) {
+            $points[] = ['lat' => 38.7 + $i * 0.0001, 'lng' => -9.1, 'recorded_at' => now()->addSeconds($i)->toIso8601String()];
+        }
+
+        $response = $this->withHeaders($this->authHeader($user))->postJson('/api/v1/activities', [
+            'type' => 'cycling',
+            'started_at' => now()->toIso8601String(),
+            'distance_meters' => 1000,
+            'duration_seconds' => 300,
+            'moving_seconds' => 300,
+            'points' => $points,
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseCount('activity_points', 50);
+    }
+
     public function test_index_returns_only_the_authenticated_users_activities(): void
     {
         $user = User::factory()->create();
